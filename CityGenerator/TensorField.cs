@@ -35,7 +35,35 @@ namespace CityGenerator
 
         private Matrix<float> createTensorAt(int row, int col) 
         {
-            
+            float R = Math.Sqrt(Math.Pow(initialDirection[0], 2), Math.Pow(initialDirection[1], 2));
+            float theta = Math.Atan(initialDirection[1]/ initialDirection[0]);
+
+            return Matrix.DenseOfRowArrays( // gives grid Tensor
+                new float[] {Math.Cos(2 * theta), Math.Sin(2 * theta)},
+                new float[] {Math.Sin(2* theta), -1 * Math.Cos(2 * theta)}
+                );
+        }
+
+        private void CalulateEigenVectors(Matrix<float> tensor) 
+        {
+            float trace = tensor.Trace();
+            float det = tensor.Determinant();
+            float eigenValueOne = trace / 2 + Math.Sqrt((Math.Pow(trace) / (4 - det)));
+            float eigenValueTwo = trace / 2 - Math.Sqrt((Math.Pow(trace) / (4 - det)));
+
+            if (tensor[1][0] != 0) 
+            {
+                Vector<float> eigenVectorOne = new DenseVector(new int[] {eigenValueOne - det, tensor[1,0]});
+                Vector<float> eigenVectorTwo = new DenseVector(new int[] {eigenValueTwo - det, tensor[1,0]});
+            } else if (tensor[0][1] != 0) 
+            {
+                Vector<float> eigenVectorOne = new DenseVector(new int[] {tensor[0,1], eigenValueOne - det});
+                Vector<float> eigenVectorTwo = new DenseVector(new int[] {tensor[0,1], eigenValueTwo - det});
+            } else 
+            {
+                Vector<float> eigenVectorOne = new DenseVector(new int[] {1.0f, 0.0f});
+                Vector<float> eigenVectorTwo = new DenseVector(new int[] {0.0f, 1.0f});
+            }
         }
 	}
 }
