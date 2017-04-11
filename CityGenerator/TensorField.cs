@@ -5,6 +5,8 @@ namespace CityGenerator
 	public class TensorField
 	{
         private Matrix<float>[,] Tensors;
+        private Vector[,] MajorEigenVectors;
+        private Vector[,] MinorEigenVectors;
         private static int FIELD_SIZE = 512;
 
         private Vector<float> initialDirection;
@@ -14,7 +16,10 @@ namespace CityGenerator
 		public TensorField(Vector initialDirection, List<Vector> radialPoints, List<List<Vector>> boundaryLines)
 		{
             Tensors = new Matrix<float>[FIELD_SIZE, FIELD_SIZE];
+            MajorEigenVectors = new Vector<float>[FIELD_SIZE, FIELD_SIZE];
+            MinorEigenVectors = new Vector<float>[FIELD_SIZE, FIELD_SIZE];
             CreateTensorField();
+            CalulateEigenVectors();
 		}
 
         public Matrix<float> GetTensor(int row, int col) 
@@ -44,7 +49,19 @@ namespace CityGenerator
                 );
         }
 
-        private void CalulateEigenVectors(Matrix<float> tensor) 
+        private void CalculateEigenVectors() 
+        {
+            for (int i = 0; i < FIELD_SIZE; i++) 
+            {
+                for (int j = 0; j < FIELD_SIZE; j++)
+                {
+                    CalulateEigenVectors(TensorField[i][j], i, j);
+                }
+            }
+        }
+
+
+        private void CalulateEigenVectors(Matrix<float> tensor, int row, int col) 
         {
             float trace = tensor.Trace();
             float det = tensor.Determinant();
@@ -53,16 +70,16 @@ namespace CityGenerator
 
             if (tensor[1][0] != 0) 
             {
-                Vector<float> eigenVectorOne = new DenseVector(new int[] {eigenValueOne - det, tensor[1,0]});
-                Vector<float> eigenVectorTwo = new DenseVector(new int[] {eigenValueTwo - det, tensor[1,0]});
+                MajorEigenVectors[row][col] = new DenseVector(new int[] {eigenValueOne - det, tensor[1,0]});
+                MinorEigenVectors[row][col] = new DenseVector(new int[] {eigenValueTwo - det, tensor[1,0]});
             } else if (tensor[0][1] != 0) 
             {
-                Vector<float> eigenVectorOne = new DenseVector(new int[] {tensor[0,1], eigenValueOne - det});
-                Vector<float> eigenVectorTwo = new DenseVector(new int[] {tensor[0,1], eigenValueTwo - det});
+                MajorEigenVectors[row][col] = new DenseVector(new int[] {tensor[0,1], eigenValueOne - det});
+                MinorEigenVectors = new DenseVector(new int[] {tensor[0,1], eigenValueTwo - det});
             } else 
             {
-                Vector<float> eigenVectorOne = new DenseVector(new int[] {1.0f, 0.0f});
-                Vector<float> eigenVectorTwo = new DenseVector(new int[] {0.0f, 1.0f});
+                MajorEigenVectors[row][col] = new DenseVector(new int[] {1.0f, 0.0f});
+                MinorEigenVectors = new DenseVector(new int[] {0.0f, 1.0f});
             }
         }
 	}
