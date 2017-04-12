@@ -1,6 +1,7 @@
 ﻿using System;
 using MathNet.Numerics.LinearAlgebra;
 using System.Collections.Generic;
+using System.Diagnostics;
 
 namespace CityGenerator
 {
@@ -56,7 +57,7 @@ namespace CityGenerator
         private Matrix<float> CreateTensorAt(int row, int col) 
         {
             float R = (float) Math.Sqrt(Math.Pow(initialDirection[0], 2) + Math.Pow(initialDirection[1], 2));
-            float theta = (float) Math.Atan(initialDirection[1]/ initialDirection[0]);
+            float theta = (float) Math.Atan2(initialDirection[1], initialDirection[0]);
             var M = Matrix<float>.Build;
 
             return M.DenseOfRowArrays( // gives grid Tensor
