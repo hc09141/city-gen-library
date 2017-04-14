@@ -13,7 +13,7 @@ namespace DebugTools
 
         public DebugTensorFieldPlugin(float initX, float initY)
         {
-            Tensors = new TensorField(initX, initY, null, null);
+            Tensors = new TensorField(null, null, null, null);
         }
 
         public float[,] GetMajorEigenVectorX()

@@ -24,11 +24,22 @@ namespace CityGenerator
         public TensorField(
             List<float> radialPointsX, 
             List<float> radialPointsY, 
-            List<float> polylinePointsX,
-            List<float> polylinePointsY)
+            List<List<float>> polylinePointsX,
+            List<List<float>> polylinePointsY)
         {
             TensorFieldX = new float[FIELD_SIZE, FIELD_SIZE];
             TensorFieldY = new float[FIELD_SIZE, FIELD_SIZE];
+
+            TensorPointX = new List<float>();
+            TensorPointY = new List<float>();
+            TensorX = new List<float>();
+            TensorY = new List<float>();
+
+            MajorEigenX = new float[FIELD_SIZE, FIELD_SIZE];
+            MajorEigenY = new float[FIELD_SIZE, FIELD_SIZE];
+            MinorEigenX = new float[FIELD_SIZE, FIELD_SIZE];
+            MinorEigenY = new float[FIELD_SIZE, FIELD_SIZE];
+
             CreateRadialTensors(radialPointsX, radialPointsY);
             CreatePolylineTensors(polylinePointsX, polylinePointsY);
             CreateTensorField();
@@ -78,25 +89,36 @@ namespace CityGenerator
             }
         }
 
-        private void CreatePolylineTensors(List<float> polylinePointsX, List<float> polylinePointsY)
+        private void CreatePolylineTensors(List<List<float>> polylinePointsX, List<List<float>> polylinePointsY)
         {
-            for (int i = 0; i < polylinePointsX.Count - 1; i++)
+            if (polylinePointsX == null)
             {
-                float deltaX = (polylinePointsX[i + 1] - polylinePointsX[i]) / 2;
-                float deltaY = (polylinePointsY[i + 1] - polylinePointsY[i]) / 2;
-                float R = (float)Math.Sqrt(Math.Pow(deltaX, 2) + Math.Pow(deltaY, 2));
-                float theta = (float)Math.Atan2(deltaY, deltaX);
+                return;
+            }
+            for (int line = 0; line < polylinePointsX.Count - 1; line++)
+            {
+                for(int i = 0; i < polylinePointsX[line].Count; i++)
+                {
+                    float deltaX = (polylinePointsX[line][i + 1] - polylinePointsX[line][i]) / 2;
+                    float deltaY = (polylinePointsY[line][i + 1] - polylinePointsY[line][i]) / 2;
+                    float R = (float)Math.Sqrt(Math.Pow(deltaX, 2) + Math.Pow(deltaY, 2));
+                    float theta = (float)Math.Atan2(deltaY, deltaX);
 
 
-                TensorPointX.Add(polylinePointsX[i] + deltaX);
-                TensorPointY.Add(polylinePointsY[i] + deltaY);
-                TensorX.Add((float)(R * Math.Cos(2 * theta)));
-                TensorY.Add((float)(R * Math.Sin(2 * theta)));
+                    TensorPointX.Add(polylinePointsX[line][i] + deltaX);
+                    TensorPointY.Add(polylinePointsY[line][i] + deltaY);
+                    TensorX.Add((float)(R * Math.Cos(2 * theta)));
+                    TensorY.Add((float)(R * Math.Sin(2 * theta)));
+                }                
             }
         }
 
         private void CreateRadialTensors(List<float> radialPointsX, List<float> radialPointsY)
         {
+            if (radialPointsX == null)
+            {
+                return;
+            }
             for (int i = 0; i < radialPointsY.Count; i++)
             {
                 TensorPointX.Add(radialPointsX[i]);
